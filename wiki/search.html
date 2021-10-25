@@ -59,14 +59,7 @@
                 <p class="button" onclick="search(true)">Jump</p>
             </div>
         </div>
-        <script>
-            var site = "http://aqwwiki.wikidot.com/";
-            var url = "{$url}";
-            if (url == "{" + "$url}")
-                url = "http://aqwwiki.wikidot.com/dev:better-search";
-    
-            var nameField = document.getElementById("nameField");
-    
+        <script>  
             var locIndex = {
                 aqw3d: "3d-battleon",
                 digitalmain: "8-bit-battleon",
@@ -1097,6 +1090,13 @@
                 zorbot: "zorbot-location",
                 orbhunt: "orb-hunt",
             };
+
+            var site = "http://aqwwiki.wikidot.com/";
+            var send_to = new URL(window.location.href).searchParams.get("url");
+            if (send_to === null || !send_to.includes("aqwwiki"))
+                send_to = "http://aqwwiki.wikidot.com/dev:better-search";
+    
+            var nameField = document.getElementById("nameField");
     
             function keypress(event) {
                 if (event.keyCode == 13) search(event.shiftKey);
@@ -1118,7 +1118,7 @@
                 } else q = fullName.replaceAll(" ", "-").replaceAll("'", "-");
     
                 if (lucky) window.open(site + q, "_top");
-                else window.open(url + "/fullname/" + q, "_top");
+                else window.open(send_to + "/fullname/" + q, "_top");
             }
         </script>
     </body>
