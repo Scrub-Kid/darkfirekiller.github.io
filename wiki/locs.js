@@ -93,6 +93,7 @@ var locIndex = {
     beleensdream: "beleen-s-dream",
     binky: "binky-location",
     birthday: "birthday",
+    birthdayfeast: "birthday-feast",
     blackfridaywar: "black-friday-war",
     blackholesun: "black-hole-sun",
     blackhorn: "blackhorn-tomb",
