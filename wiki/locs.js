@@ -349,6 +349,7 @@ var locIndex = {
     eaglesreach: "eagle-s-reach",
     earthstorm: "earth-storm",
     ebilbattleontown: "ebil-battleon-town",
+    ebilcorphq: "ebilcorp-hq",
     ebildread: "ebil-dread",
     ebilportal: "ebil-portal",
     ebiltower: "ebil-guardian-tower",
