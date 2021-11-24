@@ -494,6 +494,7 @@ var locIndex = {
     guru: "guru",
     hachiko: "hachiko-hotel-location",
     harvest: "harvest",
+    harvestqueen: "harvest-queen-location",
     harvestslayer: "harvest-slayer",
     harvestzombie: "harvest-zombie",
     hbchallenge: "hollowborn-challenge",
