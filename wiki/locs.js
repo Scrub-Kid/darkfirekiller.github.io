@@ -508,6 +508,7 @@ var locIndex = {
     hiddendepths: "hidden-depths",
     highcommand: "high-command",
     highseas: "highseas",
+    helsgrove: "helsgrove",
     hollowcastle: "hollowsoul-castle-location",
     hollowdeep: "hollowdeep",
     hollowhalls: "haunted-halls-of-hollowsoul",
