@@ -697,6 +697,7 @@ var locIndex = {
     orecavern: "ore-caverns",
     originul: "originul",
     otto: "otto",
+    otziwar: "otzi-war",
     overworld: "overworld",
     pal9001: "pal-9001-location",
     palace: "palace",
