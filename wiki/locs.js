@@ -367,6 +367,7 @@ var locIndex = {
     epicvordred: "epic-vordred",
     eridani: "eridani",
     escherion: "escherion-s-tower",
+    eternalchaos: "eternal-chaos",
     eternalnight: "eternal-night",
     etherwardes: "etherstorm-war-desoloth",
     etherwarevil: "etherstorm-war-evil",
