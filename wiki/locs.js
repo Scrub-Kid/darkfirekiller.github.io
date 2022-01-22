@@ -400,6 +400,7 @@ var locIndex = {
     feastwargood: "feast-war-good",
     feverfew: "feverfew",
     fezzini: "fezzini",
+    fiendpast: "fiend-past",
     fiendshard: "fiendshard",
     finalbattle: "final-battle",
     finalshowdown: "final-showdown",
