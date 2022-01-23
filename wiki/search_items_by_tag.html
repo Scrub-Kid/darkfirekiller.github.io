@@ -1,0 +1,688 @@
+<html>
+  <head>
+    <style>
+      body {
+        font-family: verdana, arial, helvetica, sans-serif;
+        font-size: 0.8em;
+      }
+      .hidden {
+        display: none;
+      }
+      /* MAIN FORM */
+
+      label {
+        font-size: 1.2em;
+      }
+      input[type="text"],
+      input[type="number"],
+      select {
+        width: 100%;
+        padding: 8px;
+        margin: 8px 0;
+        display: inline-block;
+        border: 1px solid gray;
+        border-radius: 4px;
+        box-sizing: border-box;
+      }
+
+      .button {
+        background-color: DarkRed;
+        color: white;
+
+        text-align: center;
+        vertical-align: middle;
+
+        border: none;
+        border-radius: 4px;
+
+        cursor: pointer;
+      }
+
+      .button:hover,
+      .button:focus {
+        text-decoration: none;
+        background-color: rgb(110, 29, 29);
+        outline: none;
+      }
+
+      .button-submit {
+        font-size: 20px;
+        width: 100%;
+        padding: 14px 20px;
+      }
+
+      .form-flex-area {
+        display: flex;
+        justify-content: left;
+      }
+      .form-flex-area-col {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .option-container {
+        width: max-content;
+        border: 2px solid darkred;
+        border-radius: 10px;
+        background-color: beige;
+      }
+      .option-container > div {
+        padding: 10px;
+      }
+      .option-container > div:not(:last-child) {
+        border-right: 1px solid darkred;
+      }
+
+      /* TOGGLE BUTTONS */
+
+      .togglebutton {
+        display: inline-block;
+        font-size: 12px;
+        padding: 6px 12px;
+        width: max-content;
+      }
+
+      .togglebutton::before {
+        content: "+ ";
+      }
+      .togglebutton.toggleon {
+        background-color: brown;
+      }
+      .togglebutton.toggleon::before {
+        content: "- ";
+      }
+
+      /* TAG BOX */
+
+      .dropdown-box {
+        display: none;
+        margin-top: 0.5rem;
+        padding: 0.5rem;
+        background: white;
+        border: 1px solid gray;
+        border-radius: 4px;
+      }
+      .dropdown-box.toggleon {
+        display: block;
+      }
+      .tag-flex {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: left;
+      }
+
+      .tagadd {
+        width: 18px;
+        height: 18px;
+        font-size: 10px;
+        padding: 0;
+        background: white;
+        border: 1px solid gray;
+        border-radius: 4px;
+      }
+
+      .tag-sel {
+        flex: 1 0 175px;
+      }
+
+      /* MISC */
+
+      .no-select {
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        cursor: default;
+      }
+      .pointer {
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <form id="tag-search-form" onsubmit="event.preventDefault();search(13)">
+      <div class="form-flex-area-col">
+        <label>Tags</label>
+        <input
+          id="tags"
+          type="text"
+          onkeyup="event.preventDefault();search(event.keyCode)"
+          placeholder="+tag1, -tag2, tag3, tag4..."
+        />
+        <div>
+          <button
+            type="button"
+            id="tagtoggle"
+            class="button togglebutton"
+            onclick="toggletags()"
+          >
+            Top Tags
+          </button>
+          <button
+            type="button"
+            id="guidetoggle"
+            class="button togglebutton"
+            onclick="toggleguide()"
+          >
+            Tag Guide
+          </button>
+          <div id="tagcontainer" class="dropdown-box">
+            <div class="tag-flex" id="combo-tags" style="margin-bottom: 10px">
+              <div class="tag-sel">
+                <button
+                  type="button"
+                  class="tagadd"
+                  onclick="addCombo('+', 'avail')"
+                >
+                  +
+                </button>
+                Available
+              </div>
+              <div class="tag-sel">
+                <button
+                  type="button"
+                  class="tagadd"
+                  onclick="addCombo('+', 'wep')"
+                >
+                  +
+                </button>
+                Weapon
+              </div>
+            </div>
+            <div class="tag-flex" id="popular-tags"></div>
+          </div>
+
+          <div id="guidecont" class="dropdown-box">
+            <p>
+              <em
+                >Tags can be separated by a space or comma.
+                <br />
+                For a list of all tags, see the
+                <a id="tagList" href="#" target="_blank"
+                  >Comprehensive Tag List</a
+                >.
+                <br />
+                For more information on the ListPages module that this page
+                uses, see the
+                <a
+                  href="https://www.wikidot.com/doc-modules:listpages-module"
+                  target="_blank"
+                  >Wikidot documentation</a
+                >.</em
+              ><br /><br />
+              <strong>+tag:</strong> Pages <em>must include</em> this tag.<br />
+              <strong>-tag:</strong> Pages <em>do not include</em> this tag.<br />
+              <strong>tag1, tag2:</strong> Pages have <em>at least one</em> of
+              these tags.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-flex-area option-container" style="margin-top: 1rem">
+        <div class="form-flex-area-col">
+          <label>Category</label>
+          <select id="parent" size="1">
+            <option>All</option>
+          </select>
+        </div>
+        <div class="form-flex-area-col">
+          <label>Order</label>
+          <select id="order" size="1">
+            <option value="title">Name</option>
+            <option value="created_at desc">Newest First</option>
+            <option value="created_at">Oldest First</option>
+            <option value="updated_at desc">Newest Updated</option>
+            <option value="updated_at">Oldest Updated</option>
+            <option value="random">Random</option>
+          </select>
+        </div>
+        <div class="form-flex-area-col">
+          <label>Gender</label>
+          <select id="gender" size="1"></select>
+        </div>
+        <div class="form-flex-area-col">
+          <label>Per Page (1-250)</label>
+          <input
+            id="perpage"
+            type="number"
+            onkeyup="search(event.keyCode)"
+            value="50"
+            min="1"
+            max="250"
+          />
+        </div>
+      </div>
+      <input
+        class="button button-submit"
+        type="submit"
+        value="Search"
+        style="margin-top: 1rem"
+      />
+    </form>
+    <script>
+      const METAS = {
+        aqw: {
+          tags: [
+            "freeplayer",
+            "legend",
+            "rare",
+            "pseudo-rare",
+            "seasonal",
+            "specialoffer",
+            "0ac",
+            "ac",
+            "shopitem",
+            "drop",
+            "mergereward",
+            "questreward",
+            "friday13th",
+            "tlapd",
+            "mogloween",
+            "frostval",
+            "aqwbirthday",
+            "staffbirthday",
+            "colorcustom",
+            "full-color",
+            "animated",
+            "hair",
+            "horns",
+            "helmet",
+            "hood",
+            "hat",
+            "mask",
+            "glowingeyes",
+            "evileyes",
+            "darkeyes",
+            "cape",
+            "wings",
+            "backweapon",
+            "backrune",
+            "tail",
+            "morph",
+            "skeletal",
+            "glowingeyes",
+            "fur",
+            "dragon",
+            "mechanical",
+            "pirate",
+            "undead",
+            "chaos",
+            "plant",
+            "belt",
+            "bodyart",
+            "parody",
+            "chaoskind",
+            "dragonkind",
+            "elementalkind",
+            "humankind",
+            "undeadkind",
+          ],
+          cats: [
+            "Armors",
+            "Capes & Back Items",
+            "Classes",
+            "Enhancements",
+            "Grounds",
+            "Helmets & Hoods",
+            "Houses",
+            "Floor Items",
+            "Wall Items",
+            "Misc. Items",
+            "Use Items",
+            "Necklaces",
+            "Pets",
+            "Battle Pets",
+            "Axes",
+            "Bows",
+            "Daggers",
+            "Gauntlets",
+            "Guns",
+            "HandGuns",
+            "Maces",
+            "Polearms",
+            "Rifles",
+            "Staffs",
+            "Swords",
+            "Wands",
+            "Whips",
+            "Cutscene Scripts",
+            "Events",
+            "Factions",
+            "Locations",
+            "Mini-Games",
+            "Monsters",
+            "NPCs",
+            "Quests",
+            "Shops",
+            "Hair Shops",
+            "Merge Shops",
+            "Wars",
+            "Book of Lore Badges",
+            "Character Page Badges",
+          ],
+        },
+        "aq-3d": {
+          tags: [
+            "junk-rarity",
+            "common-rarity",
+            "uncommon-rarity",
+            "rare-rarity",
+            "epic-rarity",
+            "legendary-rarity",
+            "aic",
+            "animated",
+            "aprilfools",
+            "armor",
+            "armorboost",
+            "attackboost",
+            "bb",
+            "belt",
+            "blackfriday",
+            "bobber",
+            "boot",
+            "boss",
+            "bow",
+            "cape",
+            "carnaval",
+            "challenge",
+            "chestreward",
+            "class",
+            "collection",
+            "consumable",
+            "cosmetic",
+            "craftingitem",
+            "craftingreward",
+            "craftshop",
+            "critboost",
+            "custom",
+            "cutscene",
+            "cybermonday",
+            "daily",
+            "darknesskind",
+            "dc",
+            "deposit",
+            "dragonkind",
+            "drop",
+            "dungeon",
+            "energykind",
+            "evasionboost",
+            "firekind",
+            "fish",
+            "fishing",
+            "fishingrod",
+            "food",
+            "friday13th",
+            "frostval",
+            "glove",
+            "grenwog",
+            "gun",
+            "hair",
+            "hasteboost",
+            "healthboost",
+            "helm",
+            "heroesheartday",
+            "heromart",
+            "hood",
+            "icekind",
+            "impossible2own",
+            "inscription",
+            "kickstarter",
+            "korinbag",
+            "korn",
+            "legacy",
+            "levelscaled",
+            "location",
+            "luckyday",
+            "lunarnewyear",
+            "misc",
+            "monster",
+            "maythe4th",
+            "mogloween",
+            "naturekind",
+            "npc",
+            "obtainedonce",
+            "pet",
+            "quest",
+            "questgiver",
+            "questitem",
+            "questreward",
+            "rank",
+            "region",
+            "resource",
+            "seasonal",
+            "set",
+            "shop",
+            "shopitem",
+            "shoulder",
+            "specialoffer",
+            "staffbirthday",
+            "starsword",
+            "summerbreak",
+            "tlapd",
+            "token ",
+            "tradeskill",
+            "transformation",
+            "translation",
+            "undeadkind",
+            "unique",
+            "use",
+            "vendor",
+            "war",
+            "weapon",
+            "wings",
+          ],
+          cats: [
+            "Item Sets",
+            "Armors",
+            "Belts",
+            "Bobbers",
+            "Boots",
+            "Bows",
+            "Capes",
+            "Classes",
+            "Fishing Rods",
+            "Gloves",
+            "Guns",
+            "Helmets & Hoods",
+            "Misc. Items",
+            "Pets",
+            "Shoulders",
+            "Transformations",
+            "Use Menu Items",
+            "Weapons",
+            "Events",
+            "Dungeons",
+            "Challenges",
+            "Locations",
+            "Regions",
+            "NPCs",
+            "Cutscenes",
+            "Rankings",
+            "Resources",
+            "Tokens",
+            "Trade Skills",
+            "Wars",
+            "Monsters",
+            "Quests",
+            "Daily Quests",
+            "Shops",
+            "Craft Shops",
+          ],
+        },
+      };
+
+      const searchParams = new URL(window.location.href).searchParams;
+
+      const site = searchParams.get("site");
+      if (site === null) {
+        document.getElementById("tag-search-form").innerHTML =
+          "Disabled(1). If you see this please contact Darkfirekiller.";
+        throw new Error("missing param: [site]");
+      }
+
+      const build = searchParams.get("build");
+      if (build === null) {
+        document.getElementById("tag-search-form").innerHTML =
+          "Disabled(2). If you see this please contact Darkfirekiller.";
+        throw new Error("missing param: [build]");
+      }
+
+      const gender = searchParams.get("gender");
+      if (gender === null) {
+        document.getElementById("tag-search-form").innerHTML =
+          "Disabled(3). If you see this please contact Darkfirekiller.";
+        throw new Error("missing param: [gender]");
+      }
+
+      const tagList = searchParams.get("tagList");
+      if (tagList === null) {
+        document.getElementById("tag-search-form").innerHTML =
+          "Disabled(4). If you see this please contact Darkfirekiller.";
+        throw new Error("missing param: [tagList]");
+      }
+
+      document.getElementById("tagList").href = tagList;
+
+      let url =
+        "https://" + site + ".wikidot.com/" + build + ":search-items-by-tag";
+
+      let parent = document.getElementById("parent");
+      let tags = document.getElementById("tags");
+      let order = document.getElementById("order");
+      let perPage = document.getElementById("perpage");
+      let genderBox = document.getElementById("gender");
+
+      let togbutton = document.getElementById("tagtoggle");
+      let tagsopen = false;
+      let tagcont = document.getElementById("tagcontainer");
+      let comboTags = document.getElementById("combo-tags");
+      let popTags = document.getElementById("popular-tags");
+      let cnt = 0;
+
+      let guidebutton = document.getElementById("guidetoggle");
+      let guideopen = false;
+      let guidecont = document.getElementById("guidecont");
+
+      function search(input) {
+        if (input == 13) {
+          let parentToSearch = parent.value != "All" ? parent.value : "-=";
+          let tagsToSearch = (tags.value + " -_index -_redirect").trim();
+          let orderOfSearch = order.value != "" ? order.value : "title";
+          let genderOfSearch = genderBox.value == "Male" ? "" : "-f";
+          let perPageSearch = perPage.value != "" ? perPage.value : "50";
+          if (
+            perPageSearch == Math.floor(perPageSearch) &&
+            perPageSearch >= 1 &&
+            perPageSearch <= 250
+          ) {
+            let search = genderOfSearch
+              .concat("/parent/")
+              .concat(parentToSearch)
+              .concat("/tags/")
+              .concat(encodeURIComponent(tagsToSearch))
+              .concat("/perPage/")
+              .concat(perPageSearch)
+              .concat("/order/")
+              .concat(orderOfSearch);
+            window.open(url + search, "_top");
+          }
+        }
+      }
+      function toggletags() {
+        if (!tagsopen) {
+          toggleBox(tagcont, togbutton, true);
+          toggleBox(guidecont, guidebutton, false);
+        } else {
+          toggleBox(tagcont, togbutton, false);
+        }
+        tagsopen = !tagsopen;
+        guideopen = false;
+      }
+      function toggleguide() {
+        if (!guideopen) {
+          toggleBox(guidecont, guidebutton, true);
+          toggleBox(tagcont, togbutton, false);
+        } else {
+          toggleBox(guidecont, guidebutton, false);
+        }
+        guideopen = !guideopen;
+        tagsopen = false;
+      }
+
+      function toggleBox(boxCont, boxButton, open) {
+        if (open) {
+          boxCont.classList.toggle("toggleon");
+          boxButton.classList.toggle("toggleon");
+        } else {
+          boxCont.classList.remove("toggleon");
+          boxButton.classList.remove("toggleon");
+        }
+      }
+
+      function addTag(type, tagname) {
+        let prefix = type == "or" ? "" : type;
+        tags.value += " " + prefix + tagname;
+      }
+
+      function addCombo(type, combo) {
+        if (combo == "avail") {
+          tags.value +=
+            site == "aq-3d"
+              ? "-legacy -seasonal "
+              : "-rare -pseudo-rare -seasonal ";
+        } else if (combo == "wep") {
+          tags.value +=
+            "axe bow dagger gauntlet gun handgun mace polearm rifle staff sword wand whip";
+        }
+      }
+
+      function drawTags() {
+        let taglist = METAS[site].tags;
+        cnt = taglist.length;
+        for (let i = 0; i < cnt; i++) {
+          let item = taglist[i];
+          popTags.innerHTML +=
+            '<div class="tag-sel"><button type="button" class="tagadd" onclick="addTag(\'+\', \'' +
+            item +
+            '\')">+</button><button type="button" class="tagadd" onclick="addTag(\'-\', \'' +
+            item +
+            '\')">-</button><button type="button" class="tagadd" onclick="addTag(\'or\', \'' +
+            item +
+            "')\">or</button> " +
+            item +
+            "</div>";
+        }
+        if (site == "aq-3d") {
+          console.log("removed");
+          comboTags.removeChild(comboTags.lastChild);
+          comboTags.removeChild(comboTags.lastChild);
+        }
+      }
+      function drawParents() {
+        let parentList = METAS[site].cats;
+        for (let i = 0; i < parentList.length; i++) {
+          let item = parentList[i];
+          parent.innerHTML += "<option>" + item + "</option>";
+        }
+      }
+      function drawGenders() {
+        genderBox.innerHTML +=
+          gender == "m"
+            ? "<option>Male</option><option>Female</option>"
+            : "<option>Female</option><option>Male</option>";
+      }
+      function doSetup(pageDOM) {
+        drawTags();
+        drawParents();
+        drawGenders();
+      }
+
+      window.onload = doSetup;
+    </script>
+  </body>
+</html>
